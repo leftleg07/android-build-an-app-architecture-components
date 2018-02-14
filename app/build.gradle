@@ -1,15 +1,20 @@
+import com.android.builder.core.DefaultManifestParser
+
 apply plugin: 'com.android.application'
+apply plugin: 'org.sonarqube'
 
 android {
-    compileSdkVersion 26
-    buildToolsVersion '26.0.1'
+    compileSdkVersion rootProject.compileSdkVersion
+    buildToolsVersion rootProject.buildToolsVersion
 
     defaultConfig {
-        applicationId "com.example.android.sunshine"
-        minSdkVersion 14
-        targetSdkVersion 26
-        versionCode 1
-        versionName "1.0"
+        def manifestFile = (File) android.sourceSets.main.manifest.srcFile
+        def manifestParser = new DefaultManifestParser(manifestFile)
+        applicationId = manifestParser.getPackage()
+        minSdkVersion rootProject.minSdkVersion
+        targetSdkVersion rootProject.targetSdkVersion
+        versionCode rootProject.versionCode
+        versionName rootProject.versionName
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -21,28 +26,69 @@ android {
     dataBinding.enabled = true
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility rootProject.sourceCompatibility
+        targetCompatibility rootProject.targetCompatibility
     }
 }
 
 // Versions number variables are defined in the module build.gradle file
 dependencies {
-    compile "com.android.support:appcompat-v7:$support_version"
-    compile "com.android.support:recyclerview-v7:$support_version"
-    compile "com.android.support:preference-v7:$support_version"
-    compile "com.android.support.constraint:constraint-layout:$constraint_layout_version"
-    compile "com.firebase:firebase-jobdispatcher:$firebase_jobdispatcher_version"
-    compile "android.arch.lifecycle:runtime:$arch_version"
-    compile "android.arch.lifecycle:extensions:$arch_version"
-    annotationProcessor "android.arch.lifecycle:compiler:$arch_version"
-    compile "android.arch.persistence.room:runtime:$arch_version"
-    annotationProcessor "android.arch.persistence.room:compiler:$arch_version"
+    implementation 'com.android.support:appcompat-v7:' + supportLibraryVersion
+    implementation 'com.android.support:recyclerview-v7:' + supportLibraryVersion
+    implementation 'com.android.support:preference-v7:' + supportLibraryVersion
+    implementation 'com.android.support.constraint:constraint-layout:' + constraintLayoutVersion
+    implementation 'com.firebase:firebase-jobdispatcher:' + firebaseJobdispatcherVersion
+    // architecture component
+    implementation 'android.arch.lifecycle:runtime:' + lifecycleVersion
+    implementation 'android.arch.lifecycle:extensions:' + lifecycleVersion
+    implementation 'android.arch.lifecycle:common-java8:' + lifecycleVersion
+    annotationProcessor 'android.arch.lifecycle:compiler:' + lifecycleVersion
+
+    implementation 'android.arch.persistence.room:runtime:' + roomVersion
+    implementation 'android.arch.persistence.room:rxjava2:' + roomVersion
+    implementation 'android.arch.persistence.room:testing:' + roomVersion
+    annotationProcessor 'android.arch.persistence.room:compiler:' + roomVersion
 
     // Instrumentation dependencies use androidTestCompile"
     // (as opposed to testCompile for local unit tests run in the JVM"
-    androidTestCompile "junit:junit:$junit_version"
-    androidTestCompile "com.android.support:support-annotations:$support_version"
-    androidTestCompile "com.android.support.test:runner:$support_test_version"
-    androidTestCompile "com.android.support.test:rules:$support_test_version"
+    testImplementation 'junit:junit:' + junitVersion
+    testImplementation 'org.assertj:assertj-core:' + assertjVersion
+    // Test helpers for LiveData
+    testImplementation 'android.arch.core:core-testing:' + lifecycleVersion
+
+    // Test helpers for Room
+    testImplementation 'android.arch.persistence.room:testing:' + roomVersion
+
+    // Test retrofit
+    testImplementation 'com.squareup.retrofit2:retrofit-mock:' + retrofitVersion
+
+    androidTestImplementation 'com.android.support.test:runner:' + androidTestVersion
+    androidTestImplementation 'com.android.support.test:rules:' + androidTestVersion
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:' + espressoVersion
+    androidTestImplementation ('android.arch.core:core-testing:' + archCoreVersion, {
+        exclude group: 'com.android.support', module: 'support-compat'
+        exclude group: 'com.android.support', module: 'support-annotations'
+        exclude group: 'com.android.support', module: 'support-core-utils'
+    })
+
+    androidTestImplementation 'org.mockito:mockito-android:' + mockitoVersion
+}
+
+sonarqube {
+    properties {
+        property 'sonar.sourceEncoding', 'UTF-8'
+        property 'sonar.language', 'java'
+
+        property 'sonar.host.url', 'http://localhost:9000' // Address of Sonar server
+        property 'sonar.sources', 'src/main' // Sources
+        property 'sonar.projectKey', "$project.name:$project.android.defaultConfig.versionName-$project.android.defaultConfig.versionCode"
+        property 'sonar.projectName', "$project.group:$project.android.defaultConfig.versionName-$project.android.defaultConfig.versionCode"
+        property 'sonar.projectDescription', "$project.group"
+        property 'sonar.projectVersion', "$project.android.defaultConfig.versionName-$project.android.defaultConfig.versionCode"
+        property 'sonar.projectBaseDir', "$project.projectDir"
+
+//        property 'sonar.exclusions', 'src/androidTest/java/**, src/androidTestMock/java/**, src/test/java/**'
+
+        property 'sonar.android.lint.report', 'build/outputs/lint-results.xml'
+    }
 }
