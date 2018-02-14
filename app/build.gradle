@@ -38,6 +38,21 @@ dependencies {
     implementation 'com.android.support:preference-v7:' + supportLibraryVersion
     implementation 'com.android.support.constraint:constraint-layout:' + constraintLayoutVersion
     implementation 'com.firebase:firebase-jobdispatcher:' + firebaseJobdispatcherVersion
+
+    // retrofit
+    implementation 'com.squareup.retrofit2:retrofit:' + retrofitVersion
+    implementation 'com.squareup.retrofit2:converter-gson:' + retrofitVersion
+    implementation 'com.squareup.retrofit2:adapter-rxjava2:' + retrofitVersion
+
+    // google dagger
+    implementation 'com.google.dagger:dagger:' + daggerVersion
+    annotationProcessor 'com.google.dagger:dagger-compiler:' + daggerVersion
+
+    implementation 'com.google.dagger:dagger-android:' + daggerVersion
+    implementation 'com.google.dagger:dagger-android-support:' + daggerVersion
+    annotationProcessor 'com.google.dagger:dagger-android-processor:' + daggerVersion
+
+
     // architecture component
     implementation 'android.arch.lifecycle:runtime:' + lifecycleVersion
     implementation 'android.arch.lifecycle:extensions:' + lifecycleVersion

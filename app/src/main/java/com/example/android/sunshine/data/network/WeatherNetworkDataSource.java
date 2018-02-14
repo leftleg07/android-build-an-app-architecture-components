@@ -157,6 +157,7 @@ public class WeatherNetworkDataSource {
 
                 URL weatherRequestUrl = NetworkUtils.getUrl();
 
+                // https://andfun-weather.udacity.com/weather?q=Mountain%20View%2C%20CA&mode=json&units=metric&cnt=14
                 // Use the URL to retrieve the JSON
                 String jsonWeatherResponse = NetworkUtils.getResponseFromHttpUrl(weatherRequestUrl);
 
