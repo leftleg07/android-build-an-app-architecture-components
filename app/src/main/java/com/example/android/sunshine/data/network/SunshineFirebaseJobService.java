@@ -17,15 +17,19 @@ package com.example.android.sunshine.data.network;
 
 import android.util.Log;
 
-import com.example.android.sunshine.utilities.InjectorUtils;
 import com.firebase.jobdispatcher.Job;
 import com.firebase.jobdispatcher.JobParameters;
 import com.firebase.jobdispatcher.JobService;
 import com.firebase.jobdispatcher.RetryStrategy;
 
+import javax.inject.Inject;
+
 
 public class SunshineFirebaseJobService extends JobService {
     private static final String LOG_TAG = SunshineFirebaseJobService.class.getSimpleName();
+
+    @Inject
+    WeatherNetworkDataSource networkDataSource;
 
     /**
      * The entry point to your Job. Implementations should offload work to another thread of
@@ -41,8 +45,6 @@ public class SunshineFirebaseJobService extends JobService {
     public boolean onStartJob(final JobParameters jobParameters) {
         Log.d(LOG_TAG, "Job service started");
 
-        WeatherNetworkDataSource networkDataSource =
-                InjectorUtils.provideNetworkDataSource(this.getApplicationContext());
         networkDataSource.fetchWeather();
 
         jobFinished(jobParameters, false);

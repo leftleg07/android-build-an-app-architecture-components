@@ -19,7 +19,11 @@ import android.app.IntentService;
 import android.content.Intent;
 import android.util.Log;
 
-import com.example.android.sunshine.utilities.InjectorUtils;
+import com.example.android.sunshine.data.SunshineRepository;
+
+import javax.inject.Inject;
+
+import dagger.android.AndroidInjection;
 
 /**
  * An {@link IntentService} subclass for immediately scheduling a sync with the server off of the
@@ -30,15 +34,25 @@ import com.example.android.sunshine.utilities.InjectorUtils;
 public class SunshineSyncIntentService extends IntentService {
     private static final String LOG_TAG = SunshineSyncIntentService.class.getSimpleName();
 
+    @Inject
+    WeatherNetworkDataSource networkDataSource;
+
+    @Inject
+    SunshineRepository repository;
+
     public SunshineSyncIntentService() {
         super("SunshineSyncIntentService");
     }
 
     @Override
+    public void onCreate() {
+        AndroidInjection.inject(this);
+        super.onCreate();
+    }
+
+    @Override
     protected void onHandleIntent(Intent intent) {
         Log.d(LOG_TAG, "Intent service started");
-        WeatherNetworkDataSource networkDataSource =
-                InjectorUtils.provideNetworkDataSource(this.getApplicationContext());
         networkDataSource.fetchWeather();
     }
 }

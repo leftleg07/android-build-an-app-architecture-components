@@ -17,7 +17,7 @@ buildscript {
 allprojects {
     repositories {
         jcenter()
-        maven { url 'https://maven.google.com' }
+        google()
     }
 }
 
@@ -51,10 +51,12 @@ ext {
 
     daggerVersion = '2.14.1'
     timberVersion = '4.6.0'
+    loggerVersion = '2.1.1'
+    butterknifeVersion ='8.8.1'
 
     // Test Dependencies
     junitVersion = '4.12'
-    truthVersion = '0.28'
+    truthVersion = '0.39'
     mockitoVersion = '2.8.9'
     dexmakerVersion = '1.2'
     assertjVersion = '3.9.0'

@@ -25,43 +25,42 @@ import android.view.View;
 import android.widget.ProgressBar;
 
 import com.example.android.sunshine.R;
+import com.example.android.sunshine.di.Injectable;
 import com.example.android.sunshine.ui.detail.DetailActivity;
-import com.example.android.sunshine.utilities.InjectorUtils;
 
 import java.util.Date;
+
+import javax.inject.Inject;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 
 /**
  * Displays a list of the next 14 days of forecasts
  */
 public class MainActivity extends AppCompatActivity implements
-        ForecastAdapter.ForecastAdapterOnItemClickHandler {
+        ForecastAdapter.ForecastAdapterOnItemClickHandler, Injectable {
 
     private ForecastAdapter mForecastAdapter;
-    private RecyclerView mRecyclerView;
+
     private int mPosition = RecyclerView.NO_POSITION;
-    private ProgressBar mLoadingIndicator;
     private MainActivityViewModel mViewModel;
+
+    @BindView(R.id.recyclerview_forecast)
+    RecyclerView mRecyclerView;
+
+    @BindView(R.id.pb_loading_indicator)
+    ProgressBar mLoadingIndicator;
+
+    @Inject
+    MainViewModelFactory mFactory;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_forecast);
-
-        /*
-         * Using findViewById, we get a reference to our RecyclerView from xml. This allows us to
-         * do things like set the adapter of the RecyclerView and toggle the visibility.
-         */
-        mRecyclerView = findViewById(R.id.recyclerview_forecast);
-
-        /*
-         * The ProgressBar that will indicate to the user that we are loading data. It will be
-         * hidden when no data is loading.
-         *
-         * Please note: This so called "ProgressBar" isn't a bar by default. It is more of a
-         * circle. We didn't make the rules (or the names of Views), we just follow them.
-         */
-        mLoadingIndicator = findViewById(R.id.pb_loading_indicator);
+        ButterKnife.bind(this);
 
         /*
          * A LinearLayoutManager is responsible for measuring and positioning item views within a
@@ -103,8 +102,7 @@ public class MainActivity extends AppCompatActivity implements
 
         /* Setting the adapter attaches it to the RecyclerView in our layout. */
         mRecyclerView.setAdapter(mForecastAdapter);
-        MainViewModelFactory factory = InjectorUtils.provideMainActivityViewModelFactory(this.getApplicationContext());
-        mViewModel = ViewModelProviders.of(this, factory).get(MainActivityViewModel.class);
+        mViewModel = ViewModelProviders.of(this, mFactory).get(MainActivityViewModel.class);
 
         mViewModel.getForecast().observe(this, weatherEntries -> {
             mForecastAdapter.swapForecast(weatherEntries);

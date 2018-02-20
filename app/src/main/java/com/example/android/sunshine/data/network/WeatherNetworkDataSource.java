@@ -31,15 +31,14 @@ import com.firebase.jobdispatcher.Job;
 import com.firebase.jobdispatcher.Lifetime;
 import com.firebase.jobdispatcher.Trigger;
 
-import java.net.URL;
 import java.util.concurrent.TimeUnit;
 
 /**
  * Provides an API for doing all operations with the server data
  */
 public class WeatherNetworkDataSource {
-    // The number of days we want our API to return, set to 14 days or two weeks
-    public static final int NUM_DAYS = 14;
+    private final WeatherService service;
+
     private static final String LOG_TAG = WeatherNetworkDataSource.class.getSimpleName();
 
     // Interval at which to sync with the weather. Use TimeUnit for convenience, rather than
@@ -58,25 +57,13 @@ public class WeatherNetworkDataSource {
     private final MutableLiveData<WeatherEntry[]> mDownloadedWeatherForecasts;
     private final AppExecutors mExecutors;
 
-    private WeatherNetworkDataSource(Context context, AppExecutors executors) {
+    public WeatherNetworkDataSource(Context context, AppExecutors executors, WeatherService service) {
         mContext = context;
         mExecutors = executors;
         mDownloadedWeatherForecasts = new MutableLiveData<WeatherEntry[]>();
+        this.service = service;
     }
 
-    /**
-     * Get the singleton for this class
-     */
-    public static WeatherNetworkDataSource getInstance(Context context, AppExecutors executors) {
-        Log.d(LOG_TAG, "Getting the network data source");
-        if (sInstance == null) {
-            synchronized (LOCK) {
-                sInstance = new WeatherNetworkDataSource(context.getApplicationContext(), executors);
-                Log.d(LOG_TAG, "Made new network data source");
-            }
-        }
-        return sInstance;
-    }
 
     public LiveData<WeatherEntry[]> getCurrentWeatherForecasts() {
         return mDownloadedWeatherForecasts;
@@ -151,18 +138,9 @@ public class WeatherNetworkDataSource {
         mExecutors.networkIO().execute(() -> {
             try {
 
-                // The getUrl method will return the URL that we need to get the forecast JSON for the
-                // weather. It will decide whether to create a URL based off of the latitude and
-                // longitude or off of a simple location as a String.
-
-                URL weatherRequestUrl = NetworkUtils.getUrl();
-
-                // https://andfun-weather.udacity.com/weather?q=Mountain%20View%2C%20CA&mode=json&units=metric&cnt=14
-                // Use the URL to retrieve the JSON
-                String jsonWeatherResponse = NetworkUtils.getResponseFromHttpUrl(weatherRequestUrl);
-
+                String locationQuery = "Mountain View, CA";
                 // Parse the JSON into a list of weather forecasts
-                WeatherResponse response = new OpenWeatherJsonParser().parse(jsonWeatherResponse);
+                WeatherResponse response =  service.getWeather(locationQuery, WeatherService.format, WeatherService.units, WeatherService.NUM_DAYS).blockingSingle();
                 Log.d(LOG_TAG, "JSON Parsing finished");
 
 

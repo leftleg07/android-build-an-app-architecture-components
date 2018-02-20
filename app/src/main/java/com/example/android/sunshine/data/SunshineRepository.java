@@ -29,6 +29,8 @@ import com.example.android.sunshine.utilities.SunshineDateUtils;
 import java.util.Date;
 import java.util.List;
 
+import static com.example.android.sunshine.data.network.WeatherService.NUM_DAYS;
+
 /**
  * Handles data operations in Sunshine. Acts as a mediator between {@link WeatherNetworkDataSource}
  * and {@link WeatherDao}
@@ -133,7 +135,7 @@ public class SunshineRepository {
     private boolean isFetchNeeded() {
         Date today = SunshineDateUtils.getNormalizedUtcDateForToday();
         int count = mWeatherDao.countAllFutureWeather(today);
-        return (count < WeatherNetworkDataSource.NUM_DAYS);
+        return (count < NUM_DAYS);
     }
 
     /**

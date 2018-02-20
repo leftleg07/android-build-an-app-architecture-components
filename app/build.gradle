@@ -15,7 +15,7 @@ android {
         targetSdkVersion rootProject.targetSdkVersion
         versionCode rootProject.versionCode
         versionName rootProject.versionName
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "com.example.android.sunshine.TestAppTestRunner"
     }
     buildTypes {
         release {
@@ -52,6 +52,9 @@ dependencies {
     implementation 'com.google.dagger:dagger-android-support:' + daggerVersion
     annotationProcessor 'com.google.dagger:dagger-android-processor:' + daggerVersion
 
+    // butter knife
+    compile 'com.jakewharton:butterknife:' + butterknifeVersion
+    annotationProcessor 'com.jakewharton:butterknife-compiler:' + butterknifeVersion
 
     // architecture component
     implementation 'android.arch.lifecycle:runtime:' + lifecycleVersion
@@ -63,6 +66,12 @@ dependencies {
     implementation 'android.arch.persistence.room:rxjava2:' + roomVersion
     implementation 'android.arch.persistence.room:testing:' + roomVersion
     annotationProcessor 'android.arch.persistence.room:compiler:' + roomVersion
+
+    // timer
+    implementation 'com.jakewharton.timber:timber:' + timberVersion
+
+    // logger
+    implementation 'com.orhanobut:logger:' + loggerVersion
 
     // Instrumentation dependencies use androidTestCompile"
     // (as opposed to testCompile for local unit tests run in the JVM"
@@ -77,6 +86,7 @@ dependencies {
     // Test retrofit
     testImplementation 'com.squareup.retrofit2:retrofit-mock:' + retrofitVersion
 
+    androidTestImplementation 'com.google.truth:truth:' + truthVersion
     androidTestImplementation 'com.android.support.test:runner:' + androidTestVersion
     androidTestImplementation 'com.android.support.test:rules:' + androidTestVersion
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:' + espressoVersion
@@ -87,6 +97,9 @@ dependencies {
     })
 
     androidTestImplementation 'org.mockito:mockito-android:' + mockitoVersion
+
+    androidTestAnnotationProcessor 'com.google.dagger:dagger-compiler:' + daggerVersion
+    androidTestAnnotationProcessor 'com.google.dagger:dagger-android-processor:' + daggerVersion
 }
 
 sonarqube {

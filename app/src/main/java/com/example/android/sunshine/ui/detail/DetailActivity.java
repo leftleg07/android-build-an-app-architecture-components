@@ -21,20 +21,26 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
 import com.example.android.sunshine.R;
+import com.example.android.sunshine.data.SunshineRepository;
 import com.example.android.sunshine.data.database.WeatherEntry;
 import com.example.android.sunshine.databinding.ActivityDetailBinding;
-import com.example.android.sunshine.utilities.InjectorUtils;
+import com.example.android.sunshine.di.Injectable;
 import com.example.android.sunshine.utilities.SunshineDateUtils;
 import com.example.android.sunshine.utilities.SunshineWeatherUtils;
 
 import java.util.Date;
 
+import javax.inject.Inject;
+
 /**
  * Displays single day's forecast
  */
-public class DetailActivity extends AppCompatActivity {
+public class DetailActivity extends AppCompatActivity implements Injectable {
 
     public static final String WEATHER_ID_EXTRA = "WEATHER_ID_EXTRA";
+
+    @Inject
+    SunshineRepository mRepository;
 
     /*
      * This field is used for data binding. Normally, we would have to call findViewById many
@@ -54,8 +60,9 @@ public class DetailActivity extends AppCompatActivity {
         long timestamp = getIntent().getLongExtra(WEATHER_ID_EXTRA, -1);
         Date date = new Date(timestamp);
 
+        // Get the ViewModel from the mFactory
         // Get the ViewModel from the factory
-        DetailViewModelFactory factory = InjectorUtils.provideDetailViewModelFactory(this.getApplicationContext(), date);
+        DetailViewModelFactory factory = new DetailViewModelFactory(mRepository, date);
         mViewModel = ViewModelProviders.of(this, factory).get(DetailActivityViewModel.class);
 
         // Observers changes in the WeatherEntry with the id mId
