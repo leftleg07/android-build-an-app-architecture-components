@@ -16,6 +16,7 @@
 package com.example.android.sunshine.data.network;
 
 import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.MediatorLiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.content.Context;
 import android.content.Intent;
@@ -37,31 +38,32 @@ import java.util.concurrent.TimeUnit;
  * Provides an API for doing all operations with the server data
  */
 public class WeatherNetworkDataSource {
-    private final WeatherService service;
-
+    // The number of days we want our API to return, set to 14 days or two weeks
+    public static final int NUM_DAYS = 14;
     private static final String LOG_TAG = WeatherNetworkDataSource.class.getSimpleName();
 
     // Interval at which to sync with the weather. Use TimeUnit for convenience, rather than
     // writing out a bunch of multiplication ourselves and risk making a silly mistake.
     private static final int SYNC_INTERVAL_HOURS = 3;
-    private static final int SYNC_INTERVAL_SECONDS = (int) TimeUnit.HOURS.toSeconds(SYNC_INTERVAL_HOURS);
+    private static final int SYNC_INTERVAL_SECONDS = (int) TimeUnit.SECONDS.toSeconds(SYNC_INTERVAL_HOURS);
     private static final int SYNC_FLEXTIME_SECONDS = SYNC_INTERVAL_SECONDS / 3;
     private static final String SUNSHINE_SYNC_TAG = "sunshine-sync";
 
-    // For Singleton instantiation
-    private static final Object LOCK = new Object();
-    private static WeatherNetworkDataSource sInstance;
     private final Context mContext;
 
     // LiveData storing the latest downloaded weather forecasts
     private final MutableLiveData<WeatherEntry[]> mDownloadedWeatherForecasts;
     private final AppExecutors mExecutors;
+    private final WeatherService mService;
+    private final MediatorLiveData<ApiResponse<WeatherResponse>> result;
 
     public WeatherNetworkDataSource(Context context, AppExecutors executors, WeatherService service) {
         mContext = context;
         mExecutors = executors;
-        mDownloadedWeatherForecasts = new MutableLiveData<WeatherEntry[]>();
-        this.service = service;
+        mService = service;
+        mDownloadedWeatherForecasts = new MutableLiveData<>();
+        result = new MediatorLiveData<>();
+        result.observeForever(weatherResponseApiResponse -> {});
     }
 
 
@@ -137,29 +139,29 @@ public class WeatherNetworkDataSource {
         Log.d(LOG_TAG, "Fetch weather started");
         mExecutors.networkIO().execute(() -> {
             try {
-
                 String locationQuery = "Mountain View, CA";
-                // Parse the JSON into a list of weather forecasts
-                WeatherResponse response =  service.getWeather(locationQuery, WeatherService.format, WeatherService.units, WeatherService.NUM_DAYS).blockingSingle();
-                Log.d(LOG_TAG, "JSON Parsing finished");
+                LiveData<ApiResponse<WeatherResponse>> apiResponse = mService.getWeather(locationQuery, WeatherService.format, WeatherService.units, WeatherService.NUM_DAYS);
 
+                result.addSource(apiResponse, weatherResponseApiResponse -> {
+                    result.removeSource(apiResponse);
+                    WeatherResponse response = weatherResponseApiResponse.body;
+                    // As long as there are weather forecasts, update the LiveData storing the most recent
+                    // weather forecasts. This will trigger observers of that LiveData, such as the
+                    // SunshineRepository.
+                    if (response != null && response.getWeatherForecast().length != 0) {
+                        Log.d(LOG_TAG, "JSON not null and has " + response.getWeatherForecast().length
+                                + " values");
+                        Log.d(LOG_TAG, String.format("First value is %1.0f and %1.0f",
+                                response.getWeatherForecast()[0].getMin(),
+                                response.getWeatherForecast()[0].getMax()));
 
-                // As long as there are weather forecasts, update the LiveData storing the most recent
-                // weather forecasts. This will trigger observers of that LiveData, such as the
-                // SunshineRepository.
-                if (response != null && response.getWeatherForecast().length != 0) {
-                    Log.d(LOG_TAG, "JSON not null and has " + response.getWeatherForecast().length
-                            + " values");
-                    Log.d(LOG_TAG, String.format("First value is %1.0f and %1.0f",
-                            response.getWeatherForecast()[0].getMin(),
-                            response.getWeatherForecast()[0].getMax()));
+                        // When you are off of the main thread and want to update LiveData, use postValue.
+                        // It posts the update to the main thread.
+                        mDownloadedWeatherForecasts.postValue(response.getWeatherForecast());
 
-                    // When you are off of the main thread and want to update LiveData, use postValue.
-                    // It posts the update to the main thread.
-                    mDownloadedWeatherForecasts.postValue(response.getWeatherForecast());
-
-                    // If the code reaches this point, we have successfully performed our sync
-                }
+                        // If the code reaches this point, we have successfully performed our sync
+                    }
+                });
             } catch (Exception e) {
                 // Server probably invalid
                 e.printStackTrace();

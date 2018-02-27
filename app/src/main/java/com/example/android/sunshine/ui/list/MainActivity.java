@@ -56,12 +56,12 @@ public class MainActivity extends AppCompatActivity implements
     @Inject
     MainViewModelFactory mFactory;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_forecast);
         ButterKnife.bind(this);
-
         /*
          * A LinearLayoutManager is responsible for measuring and positioning item views within a
          * RecyclerView into a linear list. This means that it can produce either a horizontal or

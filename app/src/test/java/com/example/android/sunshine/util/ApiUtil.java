@@ -14,22 +14,23 @@
  * limitations under the License.
  */
 
-package com.example.android.sunshine.di;
+package com.example.android.sunshine.util;
 
 
-import com.example.android.sunshine.data.network.SunshineFirebaseJobService;
-import com.example.android.sunshine.data.network.SunshineSyncIntentService;
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.MutableLiveData;
 
-import dagger.Module;
-import dagger.android.ContributesAndroidInjector;
+import com.example.android.sunshine.data.network.ApiResponse;
 
-@Module
-public abstract class ServiceBuilder {
-    @ContributesAndroidInjector
-    abstract SunshineFirebaseJobService contributeSunshineFirebaseJobService();
+import retrofit2.Response;
 
-    @ContributesAndroidInjector
-    abstract SunshineSyncIntentService contributeSunshineSyncIntentService();
-
-
+public class ApiUtil {
+    public static <T> LiveData<ApiResponse<T>> successCall(T data) {
+        return createCall(Response.success(data));
+    }
+    public static <T> LiveData<ApiResponse<T>> createCall(Response<T> response) {
+        MutableLiveData<ApiResponse<T>> data = new MutableLiveData<>();
+        data.setValue(new ApiResponse<>(response));
+        return data;
+    }
 }

@@ -1,6 +1,7 @@
 package com.example.android.sunshine.data.network;
 
-import io.reactivex.Flowable;
+import android.arch.lifecycle.LiveData;
+
 import retrofit2.http.GET;
 import retrofit2.http.Query;
 
@@ -28,6 +29,6 @@ public interface WeatherService {
     /* The days parameter allows us to designate how many days of weather data we want */
     String DAYS_PARAM = "cnt";
 
-    @GET("weather?mode=json&units=metric&cnt=14")
-    Flowable<WeatherResponse> getWeather(@Query(QUERY_PARAM) String query, @Query(FORMAT_PARAM) String format, @Query(UNITS_PARAM) String unit, @Query(DAYS_PARAM) int days);
+    @GET("weather")
+    LiveData<ApiResponse<WeatherResponse>> getWeather(@Query(QUERY_PARAM) String query, @Query(FORMAT_PARAM) String format, @Query(UNITS_PARAM) String unit, @Query(DAYS_PARAM) int days);
 }

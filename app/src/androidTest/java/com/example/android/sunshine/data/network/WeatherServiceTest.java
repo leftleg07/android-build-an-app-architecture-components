@@ -15,7 +15,9 @@ import java.util.concurrent.CountDownLatch;
 
 import javax.inject.Inject;
 
+import static com.example.android.sunshine.util.LiveDataTestUtil.getValue;
 import static com.google.common.truth.Truth.assertThat;
+
 
 /**
  * WeatherServiceTest class
@@ -28,7 +30,7 @@ public class WeatherServiceTest {
     WeatherService service;
 
     @Before
-    public void setup() throws InterruptedException {
+    public void setup() {
         TestSunShineApp application = (TestSunShineApp) InstrumentationRegistry.getTargetContext().getApplicationContext();
         application.getTestAppComponent().injectTest(this);
 
@@ -37,15 +39,19 @@ public class WeatherServiceTest {
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         mLatch.countDown();
     }
 
     @Test
     public void getWeather() throws Exception {
         String locationQuery = "Mountain View, CA";
-        WeatherResponse response = service.getWeather(locationQuery, WeatherService.format, WeatherService.units, WeatherService.NUM_DAYS).blockingSingle();
-        assertThat(response.mCode).isEqualTo(HttpURLConnection.HTTP_OK);
-        assertThat(response.mWeatherForecast).isNotEmpty();
+        ApiResponse<WeatherResponse> response = getValue(
+                service.getWeather(locationQuery, WeatherService.format, WeatherService.units, WeatherService.NUM_DAYS));
+        assertThat(response).isNotNull();
+        assertThat(response.isSuccessful()).isTrue();
+        assertThat(response.body.getCode()).isEqualTo(HttpURLConnection.HTTP_OK);
+        assertThat(response.body.getWeatherForecast()).isNotEmpty();
+
     }
 }

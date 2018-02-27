@@ -21,12 +21,12 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
 import com.example.android.sunshine.R;
-import com.example.android.sunshine.data.SunshineRepository;
+import com.example.android.sunshine.data.repository.SunshineRepository;
 import com.example.android.sunshine.data.database.WeatherEntry;
 import com.example.android.sunshine.databinding.ActivityDetailBinding;
 import com.example.android.sunshine.di.Injectable;
-import com.example.android.sunshine.utilities.SunshineDateUtils;
-import com.example.android.sunshine.utilities.SunshineWeatherUtils;
+import com.example.android.sunshine.util.SunshineDateUtils;
+import com.example.android.sunshine.util.SunshineWeatherUtils;
 
 import java.util.Date;
 

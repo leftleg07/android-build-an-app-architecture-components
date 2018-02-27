@@ -22,5 +22,4 @@ import dagger.Module;
  */
 @Module
 public class TestAppModule {
-
 }

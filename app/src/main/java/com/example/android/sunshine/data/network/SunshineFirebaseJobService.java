@@ -24,12 +24,20 @@ import com.firebase.jobdispatcher.RetryStrategy;
 
 import javax.inject.Inject;
 
+import dagger.android.AndroidInjection;
+
 
 public class SunshineFirebaseJobService extends JobService {
     private static final String LOG_TAG = SunshineFirebaseJobService.class.getSimpleName();
 
     @Inject
     WeatherNetworkDataSource networkDataSource;
+
+    @Override
+    public void onCreate() {
+        AndroidInjection.inject(this);
+        super.onCreate();
+    }
 
     /**
      * The entry point to your Job. Implementations should offload work to another thread of

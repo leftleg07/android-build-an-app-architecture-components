@@ -21,13 +21,14 @@ import android.app.Application;
 import android.content.Context;
 
 import com.example.android.sunshine.AppExecutors;
-import com.example.android.sunshine.data.SunshineRepository;
+import com.example.android.sunshine.data.repository.SunshineRepository;
 import com.example.android.sunshine.data.database.SunshineDatabase;
 import com.example.android.sunshine.data.database.WeatherEntry;
 import com.example.android.sunshine.data.network.WeatherNetworkDataSource;
 import com.example.android.sunshine.data.network.WeatherResponse;
 import com.example.android.sunshine.data.network.WeatherService;
-import com.example.android.sunshine.utilities.SunshineDateUtils;
+import com.example.android.sunshine.util.LiveDataCallAdapterFactory;
+import com.example.android.sunshine.util.SunshineDateUtils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -46,7 +47,6 @@ import dagger.Module;
 import dagger.Provides;
 import retrofit2.Converter;
 import retrofit2.Retrofit;
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 @Module(includes = ViewModelModule.class)
@@ -83,7 +83,7 @@ class AppModule {
         return new Retrofit.Builder()
                 .baseUrl("https://andfun-weather.udacity.com/")
                 .addConverterFactory(createGsonConverter())
-                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                .addCallAdapterFactory(new LiveDataCallAdapterFactory())
                 .build()
                 .create(WeatherService.class);
     }
@@ -91,10 +91,10 @@ class AppModule {
     private static Converter.Factory createGsonConverter() {
         JsonDeserializer<WeatherResponse> deserializer = (JsonElement json, Type typeOfT, JsonDeserializationContext context) -> {
             JsonObject jsonObject = json.getAsJsonObject();
-            WeatherResponse response = new WeatherResponse();
-            response.mCode = jsonObject.get(OWM_MESSAGE_CODE).getAsInt();
-            response.mWeatherForecast = fromJson(jsonObject);
-            return response;
+
+            int code = jsonObject.get(OWM_MESSAGE_CODE).getAsInt();
+            WeatherEntry[] weatherForecast = fromJson(jsonObject);
+            return new WeatherResponse(code, weatherForecast);
         };
         Gson gson = new GsonBuilder().registerTypeAdapter(WeatherResponse.class, deserializer).create();
         return GsonConverterFactory.create(gson);
@@ -159,7 +159,7 @@ class AppModule {
     @Provides
     SunshineRepository provideRepository(Context context, WeatherNetworkDataSource networkDataSource, AppExecutors executors) {
         SunshineDatabase database = SunshineDatabase.getInstance(context.getApplicationContext());
-        return SunshineRepository.getInstance(database.weatherDao(), networkDataSource, executors);
+        return new SunshineRepository(database.weatherDao(), networkDataSource, executors);
     }
 
     @Singleton

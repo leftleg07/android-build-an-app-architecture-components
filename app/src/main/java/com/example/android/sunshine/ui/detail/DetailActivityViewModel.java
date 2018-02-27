@@ -19,7 +19,7 @@ package com.example.android.sunshine.ui.detail;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.ViewModel;
 
-import com.example.android.sunshine.data.SunshineRepository;
+import com.example.android.sunshine.data.repository.SunshineRepository;
 import com.example.android.sunshine.data.database.WeatherEntry;
 
 import java.util.Date;

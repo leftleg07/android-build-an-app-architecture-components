@@ -14,22 +14,19 @@
  * limitations under the License.
  */
 
-package com.example.android.sunshine.di;
+package com.example.android.sunshine.util;
 
+import android.arch.lifecycle.LiveData;
 
-import com.example.android.sunshine.data.network.SunshineFirebaseJobService;
-import com.example.android.sunshine.data.network.SunshineSyncIntentService;
-
-import dagger.Module;
-import dagger.android.ContributesAndroidInjector;
-
-@Module
-public abstract class ServiceBuilder {
-    @ContributesAndroidInjector
-    abstract SunshineFirebaseJobService contributeSunshineFirebaseJobService();
-
-    @ContributesAndroidInjector
-    abstract SunshineSyncIntentService contributeSunshineSyncIntentService();
-
-
+/**
+ * A LiveData class that has {@code null} value.
+ */
+public class AbsentLiveData extends LiveData {
+    private AbsentLiveData() {
+        postValue(null);
+    }
+    public static <T> LiveData<T> create() {
+        //noinspection unchecked
+        return new AbsentLiveData();
+    }
 }

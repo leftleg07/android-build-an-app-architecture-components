@@ -14,22 +14,16 @@
  * limitations under the License.
  */
 
-package com.example.android.sunshine.di;
+package com.example.android.sunshine.data.vo;
 
-
-import com.example.android.sunshine.data.network.SunshineFirebaseJobService;
-import com.example.android.sunshine.data.network.SunshineSyncIntentService;
-
-import dagger.Module;
-import dagger.android.ContributesAndroidInjector;
-
-@Module
-public abstract class ServiceBuilder {
-    @ContributesAndroidInjector
-    abstract SunshineFirebaseJobService contributeSunshineFirebaseJobService();
-
-    @ContributesAndroidInjector
-    abstract SunshineSyncIntentService contributeSunshineSyncIntentService();
-
-
+/**
+ * Status of a resource that is provided to the UI.
+ * <p>
+ * These are usually created by the Repository classes where they return
+ * {@code LiveData<Resource<T>>} to pass back the latest data to the UI with its fetch status.
+ */
+public enum Status {
+    SUCCESS,
+    ERROR,
+    LOADING
 }

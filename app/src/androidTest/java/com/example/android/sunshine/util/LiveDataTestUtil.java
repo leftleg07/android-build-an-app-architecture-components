@@ -1,4 +1,4 @@
-package com.example.android.sunshine;
+package com.example.android.sunshine.util;
 /*
  * Copyright (C) 2017 The Android Open Source Project
  *
@@ -40,7 +40,7 @@ public class LiveDataTestUtil {
             }
         };
         liveData.observeForever(observer);
-        latch.await(2, TimeUnit.SECONDS);
+        latch.await(20, TimeUnit.MINUTES);
         //noinspection unchecked
         return (T) data[0];
     }

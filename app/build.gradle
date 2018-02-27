@@ -16,6 +16,7 @@ android {
         versionCode rootProject.versionCode
         versionName rootProject.versionName
         testInstrumentationRunner "com.example.android.sunshine.TestAppTestRunner"
+        multiDexEnabled true
     }
     buildTypes {
         release {
@@ -24,6 +25,12 @@ android {
     }
 
     dataBinding.enabled = true
+
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+        }
+    }
 
     compileOptions {
         sourceCompatibility rootProject.sourceCompatibility
@@ -42,7 +49,7 @@ dependencies {
     // retrofit
     implementation 'com.squareup.retrofit2:retrofit:' + retrofitVersion
     implementation 'com.squareup.retrofit2:converter-gson:' + retrofitVersion
-    implementation 'com.squareup.retrofit2:adapter-rxjava2:' + retrofitVersion
+//    implementation 'com.squareup.retrofit2:adapter-rxjava2:' + retrofitVersion
 
     // google dagger
     implementation 'com.google.dagger:dagger:' + daggerVersion
@@ -76,7 +83,11 @@ dependencies {
     // Instrumentation dependencies use androidTestCompile"
     // (as opposed to testCompile for local unit tests run in the JVM"
     testImplementation 'junit:junit:' + junitVersion
+    testImplementation 'org.robolectric:robolectric:' + robolectricVersion
+
     testImplementation 'org.assertj:assertj-core:' + assertjVersion
+    testImplementation 'org.mockito:mockito-core:' + mockitoVersion
+
     // Test helpers for LiveData
     testImplementation 'android.arch.core:core-testing:' + lifecycleVersion
 

@@ -1,6 +1,5 @@
 package com.example.android.sunshine.data.database;
 
-import android.arch.lifecycle.LiveData;
 import android.support.test.runner.AndroidJUnit4;
 
 import org.junit.Test;
@@ -8,10 +7,9 @@ import org.junit.runner.RunWith;
 
 import java.util.List;
 
-import static com.example.android.sunshine.LiveDataTestUtil.getValue;
 import static com.example.android.sunshine.data.database.TestData.WEATHER_ENTRIES;
+import static com.example.android.sunshine.util.LiveDataTestUtil.getValue;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 /**

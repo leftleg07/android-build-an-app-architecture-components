@@ -14,22 +14,17 @@
  * limitations under the License.
  */
 
-package com.example.android.sunshine.di;
+package com.example.android.sunshine.util;
 
 
-import com.example.android.sunshine.data.network.SunshineFirebaseJobService;
-import com.example.android.sunshine.data.network.SunshineSyncIntentService;
+import com.example.android.sunshine.AppExecutors;
 
-import dagger.Module;
-import dagger.android.ContributesAndroidInjector;
+import java.util.concurrent.Executor;
 
-@Module
-public abstract class ServiceBuilder {
-    @ContributesAndroidInjector
-    abstract SunshineFirebaseJobService contributeSunshineFirebaseJobService();
+public class InstantAppExecutors extends AppExecutors {
+    private static Executor instant = command -> command.run();
 
-    @ContributesAndroidInjector
-    abstract SunshineSyncIntentService contributeSunshineSyncIntentService();
-
-
+    public InstantAppExecutors() {
+        super(instant, instant, instant);
+    }
 }

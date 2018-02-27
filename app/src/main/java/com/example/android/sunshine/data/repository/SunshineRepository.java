@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.android.sunshine.data;
+package com.example.android.sunshine.data.repository;
 
 import android.arch.lifecycle.LiveData;
 import android.util.Log;
@@ -24,12 +24,10 @@ import com.example.android.sunshine.data.database.ListWeatherEntry;
 import com.example.android.sunshine.data.database.WeatherDao;
 import com.example.android.sunshine.data.database.WeatherEntry;
 import com.example.android.sunshine.data.network.WeatherNetworkDataSource;
-import com.example.android.sunshine.utilities.SunshineDateUtils;
+import com.example.android.sunshine.util.SunshineDateUtils;
 
 import java.util.Date;
 import java.util.List;
-
-import static com.example.android.sunshine.data.network.WeatherService.NUM_DAYS;
 
 /**
  * Handles data operations in Sunshine. Acts as a mediator between {@link WeatherNetworkDataSource}
@@ -38,17 +36,14 @@ import static com.example.android.sunshine.data.network.WeatherService.NUM_DAYS;
 public class SunshineRepository {
     private static final String LOG_TAG = SunshineRepository.class.getSimpleName();
 
-    // For Singleton instantiation
-    private static final Object LOCK = new Object();
-    private static SunshineRepository sInstance;
     private final WeatherDao mWeatherDao;
     private final WeatherNetworkDataSource mWeatherNetworkDataSource;
     private final AppExecutors mExecutors;
     private boolean mInitialized = false;
 
-    private SunshineRepository(WeatherDao weatherDao,
-                               WeatherNetworkDataSource weatherNetworkDataSource,
-                               AppExecutors executors) {
+    public SunshineRepository(WeatherDao weatherDao,
+                              WeatherNetworkDataSource weatherNetworkDataSource,
+                              AppExecutors executors) {
         mWeatherDao = weatherDao;
         mWeatherNetworkDataSource = weatherNetworkDataSource;
         mExecutors = executors;
@@ -66,20 +61,6 @@ public class SunshineRepository {
                 Log.d(LOG_TAG, "New values inserted");
             });
         });
-    }
-
-    public synchronized static SunshineRepository getInstance(
-            WeatherDao weatherDao, WeatherNetworkDataSource weatherNetworkDataSource,
-            AppExecutors executors) {
-        Log.d(LOG_TAG, "Getting the repository");
-        if (sInstance == null) {
-            synchronized (LOCK) {
-                sInstance = new SunshineRepository(weatherDao, weatherNetworkDataSource,
-                        executors);
-                Log.d(LOG_TAG, "Made new repository");
-            }
-        }
-        return sInstance;
     }
 
     /**
@@ -135,7 +116,7 @@ public class SunshineRepository {
     private boolean isFetchNeeded() {
         Date today = SunshineDateUtils.getNormalizedUtcDateForToday();
         int count = mWeatherDao.countAllFutureWeather(today);
-        return (count < NUM_DAYS);
+        return (count < WeatherNetworkDataSource.NUM_DAYS);
     }
 
     /**

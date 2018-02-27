@@ -19,8 +19,6 @@ import android.app.IntentService;
 import android.content.Intent;
 import android.util.Log;
 
-import com.example.android.sunshine.data.SunshineRepository;
-
 import javax.inject.Inject;
 
 import dagger.android.AndroidInjection;
@@ -36,9 +34,6 @@ public class SunshineSyncIntentService extends IntentService {
 
     @Inject
     WeatherNetworkDataSource networkDataSource;
-
-    @Inject
-    SunshineRepository repository;
 
     public SunshineSyncIntentService() {
         super("SunshineSyncIntentService");

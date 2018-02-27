@@ -28,8 +28,8 @@ import android.widget.TextView;
 import com.example.android.sunshine.R;
 import com.example.android.sunshine.data.database.ListWeatherEntry;
 import com.example.android.sunshine.data.database.WeatherEntry;
-import com.example.android.sunshine.utilities.SunshineDateUtils;
-import com.example.android.sunshine.utilities.SunshineWeatherUtils;
+import com.example.android.sunshine.util.SunshineDateUtils;
+import com.example.android.sunshine.util.SunshineWeatherUtils;
 
 import java.util.Date;
 import java.util.List;

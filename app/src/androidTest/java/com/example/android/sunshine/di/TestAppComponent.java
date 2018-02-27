@@ -3,6 +3,7 @@ package com.example.android.sunshine.di;
 
 import android.app.Application;
 
+import com.example.android.sunshine.data.SunshineRepositoryTest;
 import com.example.android.sunshine.data.network.WeatherServiceTest;
 
 import javax.inject.Singleton;
@@ -19,6 +20,7 @@ public interface TestAppComponent {
 
 
     void injectTest(WeatherServiceTest weatherServiceTest);
+    void injectTest(SunshineRepositoryTest sunshineRepositoryTest);
 
     @Component.Builder
     interface Builder {
