@@ -1,4 +1,6 @@
-package com.example.android.sunshine.data.database;
+package com.example.android.sunshine.util;
+
+import com.example.android.sunshine.data.database.WeatherEntry;
 
 import java.util.Calendar;
 import java.util.Date;

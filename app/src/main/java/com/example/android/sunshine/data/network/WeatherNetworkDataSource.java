@@ -34,6 +34,8 @@ import com.firebase.jobdispatcher.Trigger;
 
 import java.util.concurrent.TimeUnit;
 
+import static com.blankj.utilcode.util.ObjectUtils.isNotEmpty;
+
 /**
  * Provides an API for doing all operations with the server data
  */
@@ -55,15 +57,15 @@ public class WeatherNetworkDataSource {
     private final MutableLiveData<WeatherEntry[]> mDownloadedWeatherForecasts;
     private final AppExecutors mExecutors;
     private final WeatherService mService;
-    private final MediatorLiveData<ApiResponse<WeatherResponse>> result;
+    private final MediatorLiveData<ApiResponse<WeatherResponse>> mResult;
 
     public WeatherNetworkDataSource(Context context, AppExecutors executors, WeatherService service) {
         mContext = context;
         mExecutors = executors;
         mService = service;
         mDownloadedWeatherForecasts = new MutableLiveData<>();
-        result = new MediatorLiveData<>();
-        result.observeForever(weatherResponseApiResponse -> {});
+        mResult = new MediatorLiveData<>();
+        mResult.observeForever(weatherResponseApiResponse -> {});
     }
 
 
@@ -142,13 +144,13 @@ public class WeatherNetworkDataSource {
                 String locationQuery = "Mountain View, CA";
                 LiveData<ApiResponse<WeatherResponse>> apiResponse = mService.getWeather(locationQuery, WeatherService.format, WeatherService.units, WeatherService.NUM_DAYS);
 
-                result.addSource(apiResponse, weatherResponseApiResponse -> {
-                    result.removeSource(apiResponse);
+                mResult.addSource(apiResponse, weatherResponseApiResponse -> {
+                    mResult.removeSource(apiResponse);
                     WeatherResponse response = weatherResponseApiResponse.body;
                     // As long as there are weather forecasts, update the LiveData storing the most recent
                     // weather forecasts. This will trigger observers of that LiveData, such as the
                     // SunshineRepository.
-                    if (response != null && response.getWeatherForecast().length != 0) {
+                    if (isNotEmpty(response)) {
                         Log.d(LOG_TAG, "JSON not null and has " + response.getWeatherForecast().length
                                 + " values");
                         Log.d(LOG_TAG, String.format("First value is %1.0f and %1.0f",

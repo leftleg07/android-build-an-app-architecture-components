@@ -53,6 +53,7 @@ ext {
     timberVersion = '4.6.0'
     loggerVersion = '2.1.1'
     butterknifeVersion ='8.8.1'
+    utilcodeVersion = '1.12.6'
 
     // Test Dependencies
     junitVersion = '4.12'

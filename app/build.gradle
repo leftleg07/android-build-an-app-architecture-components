@@ -36,6 +36,11 @@ android {
         sourceCompatibility rootProject.sourceCompatibility
         targetCompatibility rootProject.targetCompatibility
     }
+
+    sourceSets {
+        androidTest.java.srcDirs += "src/test-common/java"
+        test.java.srcDirs += "src/test-common/java"
+    }
 }
 
 // Versions number variables are defined in the module build.gradle file
@@ -79,6 +84,9 @@ dependencies {
 
     // logger
     implementation 'com.orhanobut:logger:' + loggerVersion
+
+    // utl
+    implementation 'com.blankj:utilcode:' + utilcodeVersion
 
     // Instrumentation dependencies use androidTestCompile"
     // (as opposed to testCompile for local unit tests run in the JVM"

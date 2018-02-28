@@ -7,7 +7,7 @@ import org.junit.runner.RunWith;
 
 import java.util.List;
 
-import static com.example.android.sunshine.data.database.TestData.WEATHER_ENTRIES;
+import static com.example.android.sunshine.util.TestData.WEATHER_ENTRIES;
 import static com.example.android.sunshine.util.LiveDataTestUtil.getValue;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;

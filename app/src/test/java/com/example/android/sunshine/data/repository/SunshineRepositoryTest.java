@@ -1,15 +1,30 @@
-package com.example.android.sunshine.data.network;
+/*
+ * Copyright (C) 2017 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.example.android.sunshine.data.repository;
 
 import android.arch.core.executor.testing.InstantTaskExecutorRule;
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.Observer;
 import android.content.Context;
 
 import com.example.android.sunshine.AppExecutors;
-import com.example.android.sunshine.data.database.WeatherEntry;
+import com.example.android.sunshine.data.database.WeatherDao;
+import com.example.android.sunshine.data.network.WeatherNetworkDataSource;
+import com.example.android.sunshine.data.network.WeatherService;
 import com.example.android.sunshine.util.CountingAppExecutors;
 import com.example.android.sunshine.util.InstantAppExecutors;
-import com.example.android.sunshine.util.TestUtil;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -23,30 +38,23 @@ import org.robolectric.annotation.Config;
 import java.util.Arrays;
 import java.util.Collection;
 
-import static com.example.android.sunshine.util.ApiUtil.successCall;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-/**
- * WeatherNetworkDataSourceTest class
- */
 @RunWith(ParameterizedRobolectricTestRunner.class)
-public class WeatherNetworkDataSourceTest {
+public class SunshineRepositoryTest {
 
-    private CountingAppExecutors countingAppExecutors;
+    private SunshineRepository repository;
     private WeatherNetworkDataSource weatherNetworkDataSource;
+    private CountingAppExecutors countingAppExecutors;
     private final boolean useRealExecutors;
 
     @Mock
-    WeatherService weatherService;
+    WeatherDao weatherDao;
 
     @Mock
     Context context;
 
+
     @Mock
-    Observer<WeatherEntry[]> observer;
+    WeatherService weatherService;
 
     @Rule
     public InstantTaskExecutorRule instantExecutorRule = new InstantTaskExecutorRule();
@@ -61,7 +69,7 @@ public class WeatherNetworkDataSourceTest {
         );
     }
 
-    public WeatherNetworkDataSourceTest(boolean useRealExecutors) {
+    public SunshineRepositoryTest(boolean useRealExecutors) {
         this.useRealExecutors = useRealExecutors;
         if (useRealExecutors) {
             countingAppExecutors = new CountingAppExecutors();
@@ -75,20 +83,19 @@ public class WeatherNetworkDataSourceTest {
                 ? countingAppExecutors.getAppExecutors()
                 : new InstantAppExecutors();
         weatherNetworkDataSource = new WeatherNetworkDataSource(context, appExecutors, weatherService);
-
+        repository = new SunshineRepository(weatherDao, weatherNetworkDataSource, appExecutors);
     }
 
     @Test
     @Config(manifest = Config.NONE)
-    public void fetchWeather() throws InterruptedException {
-        WeatherResponse response = TestUtil.createWetherResponse();
-        LiveData<ApiResponse<WeatherResponse>> call = successCall(response);
-        when(weatherService.getWeather(anyString(), anyString(), anyString(), anyInt())).thenReturn(call);
-        weatherNetworkDataSource.fetchWeather();
-
-        weatherNetworkDataSource.getCurrentWeatherForecasts().observeForever(observer);
-        Thread.sleep(1200);
-        verify(observer).onChanged(response.getWeatherForecast());
-
+    public void getCurrentWeatherForecasts() {
+        repository.getCurrentWeatherForecasts();
     }
+
+//    @Test
+//    @Config(manifest = Config.NONE)
+//    public void getWeatherByDate() {
+////        Date date = TestData.WEATHER_ENTRIES[0].getDate();
+////        repository.getWeatherByDate(date);
+//    }
 }
