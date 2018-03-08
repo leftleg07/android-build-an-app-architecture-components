@@ -18,9 +18,14 @@ package com.example.android.sunshine.ui.list;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.util.Pair;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.ProgressBar;
 
@@ -53,6 +58,9 @@ public class MainActivity extends AppCompatActivity implements
     @BindView(R.id.pb_loading_indicator)
     ProgressBar mLoadingIndicator;
 
+    @BindView(R.id.toolbar)
+    Toolbar mToolbar;
+
     @Inject
     MainViewModelFactory mFactory;
 
@@ -62,6 +70,13 @@ public class MainActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_forecast);
         ButterKnife.bind(this);
+
+        setSupportActionBar(mToolbar);
+        final ActionBar ab = getSupportActionBar();
+        ab.setHomeAsUpIndicator(R.drawable.ic_menu);
+        ab.setDisplayHomeAsUpEnabled(true);
+        ab.setDisplayShowTitleEnabled(false);
+
         /*
          * A LinearLayoutManager is responsible for measuring and positioning item views within a
          * RecyclerView into a linear list. This means that it can produce either a horizontal or
@@ -119,14 +134,30 @@ public class MainActivity extends AppCompatActivity implements
     /**
      * This method is for responding to clicks from our list.
      *
+     * @param view
      * @param date Date of forecast
      */
     @Override
-    public void onItemClick(Date date) {
+    public void onItemClick(View view, Date date) {
         Intent weatherDetailIntent = new Intent(MainActivity.this, DetailActivity.class);
         long timestamp = date.getTime();
-        weatherDetailIntent.putExtra(DetailActivity.WEATHER_ID_EXTRA, timestamp);
-        startActivity(weatherDetailIntent);
+        weatherDetailIntent.putExtra(DetailActivity.EXTRA_WEATHER_ID, timestamp);
+        ActivityOptionsCompat activityOptions = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                this,
+
+                // Now we provide a list of Pair items which contain the view we can transitioning
+                // from, and the name of the view it is transitioning to, in the launched activity
+                new Pair<View, String>(view.findViewById(R.id.weather_icon),
+                        DetailActivity.VIEW_NAME_HEADER_IMAGE),
+                new Pair<View, String>(view.findViewById(R.id.date),
+                        DetailActivity.VIEW_NAME_HEADER_TITLE),
+                new Pair<View, String>(view.findViewById(R.id.weather_description),
+                        DetailActivity.VIEW_NAME_WEATHER_DESCRIPTION),
+                new Pair<View, String>(view.findViewById(R.id.high_temperature),
+                        DetailActivity.VIEW_NAME_HIGH_TEMPERATURE),
+                new Pair<View, String>(view.findViewById(R.id.low_temperature),
+                        DetailActivity.VIEW_NAME_LOW_TEMPERATURE));
+        ActivityCompat.startActivity(this, weatherDetailIntent, activityOptions.toBundle());
     }
 
     /**

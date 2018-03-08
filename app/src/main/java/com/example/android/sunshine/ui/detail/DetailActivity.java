@@ -18,11 +18,14 @@ package com.example.android.sunshine.ui.detail;
 import android.arch.lifecycle.ViewModelProviders;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
+import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.widget.ImageView;
 
 import com.example.android.sunshine.R;
-import com.example.android.sunshine.data.repository.SunshineRepository;
 import com.example.android.sunshine.data.database.WeatherEntry;
+import com.example.android.sunshine.data.repository.SunshineRepository;
 import com.example.android.sunshine.databinding.ActivityDetailBinding;
 import com.example.android.sunshine.di.Injectable;
 import com.example.android.sunshine.util.SunshineDateUtils;
@@ -37,7 +40,16 @@ import javax.inject.Inject;
  */
 public class DetailActivity extends AppCompatActivity implements Injectable {
 
-    public static final String WEATHER_ID_EXTRA = "WEATHER_ID_EXTRA";
+    public static final String EXTRA_WEATHER_ID = "detail:_id";
+
+    // View name of the header image. Used for activity scene transitions
+    public static final String VIEW_NAME_HEADER_IMAGE = "detail:header:image";
+    // View name of the header title. Used for activity scene transitions
+    public static final String VIEW_NAME_HEADER_TITLE = "detail:header:title";
+    public static final String VIEW_NAME_HIGH_TEMPERATURE = "detail:temperature:high";
+    public static final String VIEW_NAME_LOW_TEMPERATURE = "detail:temperature:low";
+    public static final String VIEW_NAME_WEATHER_DESCRIPTION = "detail:weather:description";
+
 
     @Inject
     SunshineRepository mRepository;
@@ -51,16 +63,20 @@ public class DetailActivity extends AppCompatActivity implements Injectable {
      */
     private ActivityDetailBinding mDetailBinding;
     private DetailActivityViewModel mViewModel;
+    private CollapsingToolbarLayout mCollapsingToolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         mDetailBinding = DataBindingUtil.setContentView(this, R.layout.activity_detail);
-        long timestamp = getIntent().getLongExtra(WEATHER_ID_EXTRA, -1);
+        long timestamp = getIntent().getLongExtra(EXTRA_WEATHER_ID, -1);
         Date date = new Date(timestamp);
 
-        // Get the ViewModel from the mFactory
+        mCollapsingToolbar = findViewById(R.id.collapsing_toolbar);
+        setSupportActionBar(mDetailBinding.toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+
         // Get the ViewModel from the factory
         DetailViewModelFactory factory = new DetailViewModelFactory(mRepository, date);
         mViewModel = ViewModelProviders.of(this, factory).get(DetailActivityViewModel.class);
@@ -70,6 +86,16 @@ public class DetailActivity extends AppCompatActivity implements Injectable {
             // If the weather forecast details change, update the UI
             if (weatherEntry != null) bindWeatherToUI(weatherEntry);
         });
+        /**
+         * Set the name of the view's which will be transition to, using the static values above.
+         * This could be done in the layout XML, but exposing it via static variables allows easy
+         * querying from other Activities
+         */
+        ViewCompat.setTransitionName(mDetailBinding.primaryInfo.weatherIcon, VIEW_NAME_HEADER_IMAGE);
+        ViewCompat.setTransitionName(mDetailBinding.primaryInfo.date, VIEW_NAME_HEADER_TITLE);
+        ViewCompat.setTransitionName(mDetailBinding.primaryInfo.weatherDescription, VIEW_NAME_WEATHER_DESCRIPTION);
+        ViewCompat.setTransitionName(mDetailBinding.primaryInfo.highTemperature, VIEW_NAME_HIGH_TEMPERATURE);
+        ViewCompat.setTransitionName(mDetailBinding.primaryInfo.lowTemperature, VIEW_NAME_LOW_TEMPERATURE);
 
     }
 
@@ -83,6 +109,8 @@ public class DetailActivity extends AppCompatActivity implements Injectable {
 
         /* Set the resource ID on the icon to display the art */
         mDetailBinding.primaryInfo.weatherIcon.setImageResource(weatherImageId);
+        final ImageView imageView = findViewById(R.id.backdrop);
+        imageView.setImageResource(weatherImageId);
 
         /****************
          * Weather Date *
@@ -98,6 +126,7 @@ public class DetailActivity extends AppCompatActivity implements Injectable {
         long localDateMidnightGmt = weatherEntry.getDate().getTime();
         String dateText = SunshineDateUtils.getFriendlyDateString(DetailActivity.this, localDateMidnightGmt, true);
         mDetailBinding.primaryInfo.date.setText(dateText);
+        mCollapsingToolbar.setTitle(dateText);
 
         /***********************
          * Weather Description *
