@@ -58,8 +58,7 @@ ext {
     // Test Dependencies
     junitVersion = '4.12'
     truthVersion = '0.39'
-    robolectricVersion = '3.7.1'
-    mockitoVersion = '2.8.9'
+    robolectricVersion = '3.6.1'
     dexmakerVersion = '1.2'
     assertjVersion = '3.9.0'
     mockitoVersion = '2.15.0'
